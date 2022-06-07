@@ -3,6 +3,7 @@ import cv2 as cv
 from matplotlib import pyplot as plt
 import numpy as np
 import glob
+import os
 
 
 def tensor_to_numpy(img):
@@ -23,8 +24,8 @@ def save_tensor_img(img, img_name, output_path):
     cv.imwrite(output_p, 255 * numpy_img)
 
 
-def random_crop(lr_img, hr_img, data_type='tensor', hr_crop_size=96, scale=4):
-    ''' This function crops lr(24x24) and hr(96x96) images'''
+def random_crop(lr_img, hr_img, data_type='tensor', hr_crop_size=192, scale=4):
+    ''' This function crops lr(48x48) and hr(192*192) images'''
     lr_crop_size = hr_crop_size // scale
     if data_type == 'tensor':
         lr_img_shape = lr_img.shape[1:3]
@@ -110,6 +111,10 @@ def augment_image(train_img_file, target_img_file, train_output_path, target_out
             count += 1
 
         if count < 2:
+            if not os.path.exists(train_output_path):
+                os.makedirs(train_output_path)
+            if not os.path.exists(target_output_path):
+                os.makedirs(target_output_path)
             train_out = '{}/{}_aug_{}.png'.format(train_output_path,
                                                   train_img_file.split('/')[-1].split('\\')[-1]
                                                   .split('.')[0], i + 1)

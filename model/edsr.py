@@ -14,59 +14,71 @@ class MeanShift(nn.Conv2d):
 
 
 class ResBlock(nn.Module):
-    def __init__(self, in_channel=255, out_channel=266, kernel_size=3, stride=1, padding=1,
-                 bias=False):
+    def __init__(self, in_channel=256, out_channel=256, kernel_size=3, stride=1, padding=1,
+                 bias=True):
         super(ResBlock, self).__init__()
-        self.conv_ = nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=stride,
-                               padding=padding, bias=bias)
-        self.act_ = nn.ReLU(inplace=True)
+        layers = [nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=stride,
+                            padding=padding, bias=bias),
+                  nn.ReLU(True),
+                  nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=stride,
+                            padding=padding, bias=bias)]
+
+        self.body = nn.Sequential(*layers)
+        self.res_scale = 0.1
 
     def forward(self, x):
-        residual = x
-        out = self.conv_(x)
-        out = self.act_(out)
-        out = self.conv_(out)
-        out *= 0.1
+        res = self.body(x).mul(self.res_scale)
+        res += x
+        return res
 
-        out = torch.add(out, residual)
 
-        return out
+class Upsampler(nn.Sequential):
+    def __init__(self, scale):
+        layers = []
+        if scale == 2 or scale == 4:
+            layers.append(nn.Conv2d(256, 256 * 4, kernel_size=3, stride=1, padding=1, bias=True))
+            layers.append(nn.PixelShuffle(2))
+            if scale == 4:
+                layers.append(nn.Conv2d(256, 256 * 4, kernel_size=3, stride=1, padding=1,
+                                        bias=True))
+                layers.append(nn.PixelShuffle(2))
+        elif scale == 3:
+            layers.append(nn.Conv2d(256, 256 * 9, kernel_size=3, stride=1, padding=1, bias=True))
+            layers.append(nn.PixelShuffle(3))
+        else:
+            raise NotImplementedError
+
+        super(Upsampler, self).__init__(*layers)
 
 
 class EDSR(nn.Module):
     def __init__(self, scale):
         super(EDSR, self).__init__()
-        self.scale_ = scale
-        self.sub_mean_ = MeanShift(sign=-1)
-        self.add_mean_ = MeanShift(sign=1)
-        self.input_conv_ = nn.Conv2d(3, 255, kernel_size=3, stride=1, padding=1, bias=False)
 
-        self.res_block_ = [ResBlock() for i in range(32)]
-        self.res_block_ = nn.Sequential(*self.res_block_)
+        head_layers = [nn.Conv2d(3, 256, kernel_size=3, stride=1, padding=1, bias=True)]
 
-        self.up_sampler_ = []
-        if self.scale_ == 2 or self.scale_ == 4:
-            self.up_sampler_.append(nn.Conv2d(255, 255 * 4, kernel_size=3, stride=1, padding=1,
-                                              bias=False))
-            self.up_sampler_.append(nn.PixelShuffle(2))
-            if self.scale_ == 4:
-                self.up_sampler_.append(nn.Conv2d(255, 255 * 4, kernel_size=3, stride=1, padding=1,
-                                                  bias=False))
-                self.up_sampler_.append(nn.PixelShuffle(2))
-        elif self.scale_ == 3:
-            self.up_sampler_.append(nn.Conv2d(255, 255 * 9, kernel_size=3, stride=1, padding=1,
-                                              bias=False))
-            self.up_sampler_.append(nn.PixelShuffle(3))
-        else:
-            raise NotImplementedError
-        self.up_sampler_.append(nn.Conv2d(255, 3, kernel_size=3, stride=1, padding=1, bias=False))
-        self.up_sampler_ = nn.Sequential(*self.up_sampler_)
+        body_layers = []
+        for _ in range(32):
+            body_layers.append(ResBlock())
+        body_layers.append(nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=True))
+
+        tail_layers = [Upsampler(scale=scale),
+                       nn.Conv2d(256, 3, kernel_size=3, stride=1, padding=1, bias=True)]
+
+        self.sub_mean = MeanShift(sign=-1)
+        self.add_mean = MeanShift(sign=1)
+        self.head = nn.Sequential(*head_layers)
+        self.body = nn.Sequential(*body_layers)
+        self.tail = nn.Sequential(*tail_layers)
 
     def forward(self, x):
-        out = self.sub_mean_(x)
-        out = self.input_conv_(out)
-        residual = out
-        out = self.res_block_(out)
-        out = torch.add(out, residual)
-        out = self.up_sampler_(out)
-        out = self.add_mean_(out)
+        x = self.sub_mean(x)
+        x = self.head(x)
+
+        res = self.body(x)
+        res += x
+
+        x = self.tail(res)
+        x = self.add_mean(x)
+
+        return x

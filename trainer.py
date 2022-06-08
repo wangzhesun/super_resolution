@@ -34,7 +34,7 @@ class Trainer:
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.model_.parameters()), lr=lr,
                                weight_decay=weight_decay, betas=(0.9, 0.999), eps=1e-08)
 
-        criterion = nn.L1Loss(reduction='None')
+        criterion = nn.L1Loss(reduction='sum')
 
         print("training ...")
         for epoch_i in range(epoch + 1):

@@ -1,10 +1,9 @@
 from model import edsr
-import dataset
+from utils import dataset
 import torchvision.transforms as transforms
-import trainer
+from utils import trainer
 
-
-if __name__=='__main__':
+if __name__ == '__main__':
     # load dataset
     print('loading dataset ...')
     train_data = dataset.Dataset(train_root='./data/DIV2K_aug/DIV2K_train_LR_bicubic_X4_aug',
@@ -12,7 +11,7 @@ if __name__=='__main__':
                                  transform=transforms.ToTensor())
 
     # initialize model
-    print('building model ...')
+    print('initializing model ...')
     EDSR = edsr.EDSR(scale=4)
 
     # train the model

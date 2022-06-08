@@ -2,7 +2,7 @@ import torch.utils.data as data
 import cv2 as cv
 import glob
 import numpy as np
-import image_util as util
+from utils import image_util as util
 
 
 class Dataset(data.Dataset):

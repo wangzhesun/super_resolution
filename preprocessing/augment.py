@@ -1,4 +1,4 @@
-import image_util as util
+from utils import image_util as util
 
 if __name__ == '__main__':
     util.augment_dir(train_root='./data/DIV2K/DIV2K_train_LR_bicubic/X4',

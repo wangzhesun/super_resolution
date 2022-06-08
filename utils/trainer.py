@@ -4,7 +4,7 @@ import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader
 
-import model_util as util
+from utils import model_util as util
 
 
 class Trainer:

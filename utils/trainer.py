@@ -36,6 +36,8 @@ class Trainer:
                                weight_decay=weight_decay, betas=(0.9, 0.999), eps=1e-08)
 
         criterion = nn.L1Loss(reduction='sum')
+        if self.cuda_:
+            criterion = criterion.cuda()
 
         print("training ...")
         for epoch_i in range(epoch + 1):
@@ -43,6 +45,9 @@ class Trainer:
             check_count = 1
 
             for i, (input_img, target_img) in enumerate(train_loader):
+                if self.cuda_:
+                    input_img = input_img.cuda()
+                    target_img = target_img.cuda()
                 predict_img = self.model_(input_img)
                 loss = criterion(predict_img, target_img)
 

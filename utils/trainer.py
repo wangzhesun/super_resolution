@@ -53,8 +53,8 @@ class Trainer:
                                                                   len(train_loader),
                                                                   round(loss.item(), 1)))
 
-                if check_count % 2 == 0:
-                    util.save_checkpoint(self.model_, epoch_i + 1, check_count // 2,
+                if check_count % 200 == 0:
+                    util.save_checkpoint(self.model_, epoch_i + 1, check_count // 200,
                                          self.checkpoint_path_)
                 check_count += 1
 

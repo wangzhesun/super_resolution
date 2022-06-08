@@ -130,6 +130,6 @@ def augment_dir(train_root, target_root, train_output_path, target_output_path, 
     train_files = np.array(glob.glob(train_root + '/*'))
     target_files = np.array(glob.glob(target_root + '/*'))
     for i in range(len(train_files)):
-        print('augmenting image {} ...'.format(i+1))
+        print('augmenting image {} ...'.format(i + 1))
         augment_image(train_files[i], target_files[i], train_output_path, target_output_path,
                       aug_num=aug_num, hr_crop_size=hr_crop_size, scale=scale)

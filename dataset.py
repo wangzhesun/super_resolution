@@ -3,7 +3,7 @@ import cv2 as cv
 import glob
 import numpy as np
 import torchvision.transforms as transforms
-import util
+import image_util as util
 
 
 class Dataset(data.Dataset):

@@ -18,5 +18,5 @@ if __name__ == '__main__':
     # train the model
     trainer = trainer.Trainer(train_data, EDSR)
     trainer.set_checkpoint_saving_path('./checkpoints')
-    trainer.train(epoch=2, checkpoint_load_path='./checkpoints/model_epoch_1_save_9.pt',
+    trainer.train(epoch=100, checkpoint_load_path='./checkpoints/model_epoch_1_save_9.pt',
                   checkpoint=True)

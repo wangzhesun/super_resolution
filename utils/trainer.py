@@ -23,11 +23,15 @@ class Trainer:
         train_loader = DataLoader(self.dataset_, num_workers=num_worker, batch_size=batch_size,
                                   shuffle=True)
 
+        start_epoch = 0
         if checkpoint:
             if os.path.isfile(checkpoint_load_path):
                 print("loading checkpoint '{}' ...".format(checkpoint_load_path))
                 checkpoint = torch.load(checkpoint_load_path)
-                self.model_.load_state_dict(checkpoint)
+                state = checkpoint['model']
+                lr = checkpoint['lr']
+                start_epoch = checkpoint['epoch']
+                self.model_.load_state_dict(state)
                 print("loading checkpoint successfully")
             else:
                 print("=> no checkpoint found at '{}'".format(checkpoint_load_path))
@@ -40,7 +44,7 @@ class Trainer:
             criterion = criterion.cuda()
 
         print("training ...")
-        for epoch_i in range(epoch + 1):
+        for epoch_i in range(start_epoch, start_epoch+epoch+1):
             lr = util.adjust_lr(lr, epoch - 1, self.step)
             check_count = 1
 
@@ -55,13 +59,17 @@ class Trainer:
                 loss.backward()
                 optimizer.step()
 
-                print("===> Epoch[{}/{}]({}/{}): Loss: {}".format(epoch_i + 1, epoch, i + 1,
-                                                                  len(train_loader),
+                print("===> Epoch[{}/{}]({}/{}): Loss: {}".format(epoch_i + 1, start_epoch+epoch+1,
+                                                                  i+1, len(train_loader),
                                                                   round(loss.item(), 1)))
 
-                if check_count % 200 == 0:
-                    util.save_checkpoint(self.model_, epoch_i + 1, check_count // 200,
-                                         self.checkpoint_path_)
+                if check_count % 1 == 0:
+                    util.save_checkpoint(model=self.model_, lr=lr, epoch=epoch_i + 1,
+                                         mark=check_count // 1, path=self.checkpoint_path_)
                 check_count += 1
 
-        util.save_checkpoint(self.model_, self.checkpoint_path_, final=True)
+                if i == 1:
+                    break
+
+        util.save_checkpoint(model=self.model_, lr=lr, epoch=epoch, path=self.checkpoint_path_,
+                             final=True)

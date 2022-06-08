@@ -29,5 +29,5 @@ if __name__ == '__main__':
 
     # train the model
     train_model(model=sr_model, train_dataset=train_data, epoch=100,
-                checkpoint_save_path='./checkpoints', checkpoint=True,
-                checkpoint_load_path='./checkpoints/model_epoch_1_save_9.pt', cuda=False)
+                checkpoint_save_path='./checkpoints', checkpoint=False,
+                checkpoint_load_path=None, cuda=False)

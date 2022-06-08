@@ -8,11 +8,12 @@ from utils import model_util as util
 
 
 class Trainer:
-    def __init__(self, dataset, model):
+    def __init__(self, dataset, model, cuda):
         self.dataset_ = dataset
         self.model_ = model
-        self.step = 200
+        self.step = 10
         self.checkpoint_path_ = None
+        self.cuda_ = cuda
 
     def set_checkpoint_saving_path(self, path):
         self.checkpoint_path_ = path

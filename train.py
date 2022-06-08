@@ -1,7 +1,19 @@
-from model import edsr
+from model.edsr import EDSR
 from utils import dataset
 import torchvision.transforms as transforms
-from utils import trainer
+from utils.trainer import Trainer
+
+
+def create_model(scale):
+    return EDSR(scale=scale)
+
+
+def train_model(model, train_dataset, epoch, checkpoint_save_path, checkpoint=False,
+                checkpoint_load_path=None, cuda=False):
+    trainer = Trainer(train_dataset, model, cuda=cuda)
+    trainer.set_checkpoint_saving_path(checkpoint_save_path)
+    trainer.train(epoch=epoch, checkpoint_load_path=checkpoint_load_path,
+                  checkpoint=checkpoint)
 
 
 if __name__ == '__main__':
@@ -11,12 +23,11 @@ if __name__ == '__main__':
                                  target_root='./data/DIV2K_aug/DIV2K_train_HR_X4_aug',
                                  transform=transforms.ToTensor())
 
-    # initialize model
+    # create the model
     print('initializing model ...')
-    EDSR = edsr.EDSR(scale=4)
+    sr_model = create_model(scale=4)
 
     # train the model
-    trainer = trainer.Trainer(train_data, EDSR)
-    trainer.set_checkpoint_saving_path('./checkpoints')
-    trainer.train(epoch=100, checkpoint_load_path='./checkpoints/model_epoch_1_save_9.pt',
-                  checkpoint=True)
+    train_model(model=sr_model, train_dataset=train_data, epoch=100,
+                checkpoint_save_path='./checkpoints', checkpoint=True,
+                checkpoint_load_path='./checkpoints/model_epoch_1_save_9.pt', cuda=False)

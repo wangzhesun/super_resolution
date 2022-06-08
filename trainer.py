@@ -1,0 +1,61 @@
+import os
+
+import torch
+from torch import optim, nn
+from torch.utils.data import DataLoader
+
+import model_util as util
+
+
+class Trainer:
+    def __init__(self, dataset, model):
+        self.dataset_ = dataset
+        self.model_ = model
+        self.step = 200
+        self.checkpoint_path_ = None
+
+    def set_checkpoint_saving_path(self, path):
+        self.checkpoint_path_ = path
+
+    def train(self, epoch, batch_size=16, lr=1e-4, num_worker=3, weight_decay=1e-4,
+              checkpoint_load_path=None, checkpoint=False):
+        train_loader = DataLoader(self.dataset_, num_workers=num_worker, batch_size=batch_size,
+                                  shuffle=True)
+
+        if checkpoint:
+            if os.path.isfile(checkpoint_load_path):
+                print("loading checkpoint '{}' ...".format(checkpoint_load_path))
+                checkpoint = torch.load(checkpoint_load_path)
+                self.model_.load_state_dict(checkpoint)
+                print("loading checkpoint successfully")
+            else:
+                print("=> no checkpoint found at '{}'".format(checkpoint_load_path))
+
+        optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.model_.parameters()), lr=lr,
+                               weight_decay=weight_decay, betas=(0.9, 0.999), eps=1e-08)
+
+        criterion = nn.L1Loss(reduction='None')
+
+        print("training ...")
+        for epoch_i in range(epoch + 1):
+            lr = util.adjust_lr(lr, epoch - 1, self.step)
+            check_count = 1
+
+            for i, (input_img, target_img) in enumerate(train_loader):
+                predict_img = self.model_(input_img)
+                loss = criterion(predict_img, target_img)
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+                print("===> Epoch[{}/{}]({}/{}): Loss: {}".format(epoch_i + 1, epoch, i + 1,
+                                                                  len(train_loader),
+                                                                  round(loss.item(), 1)))
+
+                if check_count % 2 == 0:
+                    util.save_checkpoint(self.model_, epoch_i + 1, check_count // 2,
+                                         self.checkpoint_path_)
+                check_count += 1
+
+        util.save_checkpoint(self.model_, self.checkpoint_path_, final=True)

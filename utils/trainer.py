@@ -26,15 +26,15 @@ class Trainer:
         start_epoch = 0
         if checkpoint:
             if os.path.isfile(checkpoint_load_path):
-                print("loading checkpoint '{}' ...".format(checkpoint_load_path))
+                print('loading checkpoint \'{}\' ...'.format(checkpoint_load_path))
                 checkpoint = torch.load(checkpoint_load_path)
                 state = checkpoint['model']
                 lr = checkpoint['lr']
                 start_epoch = checkpoint['epoch']
                 self.model_.load_state_dict(state)
-                print("loading checkpoint successfully")
+                print('loading checkpoint successfully')
             else:
-                print("=> no checkpoint found at '{}'".format(checkpoint_load_path))
+                print('=> no checkpoint found at \'{}\''.format(checkpoint_load_path))
 
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.model_.parameters()), lr=lr,
                                weight_decay=weight_decay, betas=(0.9, 0.999), eps=1e-08)
@@ -43,7 +43,7 @@ class Trainer:
         if self.cuda_:
             criterion = criterion.cuda()
 
-        print("training ...")
+        print('training ...')
         for epoch_i in range(start_epoch, start_epoch+epoch+1):
             lr = util.adjust_lr(lr, epoch - 1, self.step)
             check_count = 1
@@ -59,7 +59,7 @@ class Trainer:
                 loss.backward()
                 optimizer.step()
 
-                print("===> Epoch[{}/{}]({}/{}): Loss: {}".format(epoch_i + 1, start_epoch+epoch+1,
+                print('===> Epoch[{}/{}]({}/{}): Loss: {}'.format(epoch_i + 1, start_epoch+epoch+1,
                                                                   i+1, len(train_loader),
                                                                   round(loss.item(), 1)))
 

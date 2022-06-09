@@ -5,6 +5,7 @@ from utils.trainer import Trainer
 
 
 def create_model(scale):
+    print('initializing model ...')
     return EDSR(scale=scale)
 
 
@@ -24,7 +25,6 @@ if __name__ == '__main__':
                                  transform=transforms.ToTensor())
 
     # create the model
-    print('initializing model ...')
     sr_model = create_model(scale=4)
 
     # train the model

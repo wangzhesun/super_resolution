@@ -1,5 +1,3 @@
-import os
-import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader
 
@@ -24,16 +22,7 @@ class Trainer:
 
         start_epoch = 0
         if checkpoint:
-            if os.path.isfile(checkpoint_load_path):
-                print('loading checkpoint \'{}\' ...'.format(checkpoint_load_path))
-                checkpoint = torch.load(checkpoint_load_path)
-                state = checkpoint['model']
-                lr = checkpoint['lr']
-                start_epoch = checkpoint['epoch']
-                self.model_.load_state_dict(state)
-                print('loading checkpoint successfully')
-            else:
-                print('=> no checkpoint found at \'{}\''.format(checkpoint_load_path))
+            self.model_, start_epoch, lr = util.load_checkpoint(self.model_, checkpoint_load_path)
 
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.model_.parameters()), lr=lr,
                                weight_decay=weight_decay, betas=(0.9, 0.999), eps=1e-08)

@@ -8,7 +8,7 @@ def create_model(scale):
 
 
 def adjust_lr(lr, epoch, step):
-    return lr * (0.5 ** (epoch // step))
+    return lr * (0.1 ** (epoch // step))
 
 
 def save_checkpoint(model, lr=1e-4, epoch=-1, mark=-1, path=None, final=False):
@@ -31,3 +31,20 @@ def save_checkpoint(model, lr=1e-4, epoch=-1, mark=-1, path=None, final=False):
         torch.save(state, model_out_path)
 
         print('Checkpoint saved to {}'.format(model_out_path))
+
+
+def load_checkpoint(model, checkpoint_load_path):
+    if os.path.isfile(checkpoint_load_path):
+        print('loading checkpoint \'{}\' ...'.format(checkpoint_load_path))
+        checkpoint = torch.load(checkpoint_load_path)
+        state = checkpoint['model']
+        lr = checkpoint['lr']
+        start_epoch = checkpoint['epoch']
+        model.load_state_dict(state)
+        print('loading checkpoint successfully')
+
+        return model, start_epoch, lr
+    else:
+        print('=> no checkpoint found at \'{}\''.format(checkpoint_load_path))
+
+        return None, None, None

@@ -4,6 +4,7 @@ import os
 from utils.trainer import Trainer
 import torchvision.transforms as transforms
 import cv2 as cv
+from utils import image_util
 
 
 def create_model(scale):
@@ -61,10 +62,35 @@ def train_model(model, train_dataset, epoch, checkpoint_save_path, checkpoint=Fa
                   checkpoint=checkpoint)
 
 
-def evaluate_img(model, input_path, cuda=False):
+def evaluate_model(model, input_path, cuda=False):
     input_image = transforms.ToTensor()(cv.imread(input_path))
     if cuda:
         input_image = input_image.cuda()
 
     output_image = model(input_image)
     return input_image, output_image
+
+
+def enhance(scale, image_path, weight_path, display=False, save=False, output_path=None,
+            cuda=False):
+    print('initializing model ...')
+    sr_model = create_model(scale=scale)
+
+    sr_model, _, _ = load_checkpoint(sr_model, weight_path)
+
+    print('enhancing image ...')
+    input_img, output_img = \
+        evaluate_model(sr_model, image_path, cuda=cuda)
+
+    if display:
+        image_util.show_tensor_img(input_img.detach(), 'input image')
+        image_util.show_tensor_img(output_img.detach(), 'output image')
+        print('image displayed')
+
+    if save:
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        image_util.save_tensor_img(output_img.detach(),
+                                   '{}_sr'.format(image_path.split('/')[-1].split('.')[0]),
+                                   output_path)
+        print('image saved')

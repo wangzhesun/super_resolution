@@ -115,10 +115,6 @@ def augment_image(train_img_file, target_img_file, train_output_path, target_out
             count += 1
 
         if count < 2:
-            if not os.path.exists(train_output_path):
-                os.makedirs(train_output_path)
-            if not os.path.exists(target_output_path):
-                os.makedirs(target_output_path)
             train_out = '{}/{}_aug_{}.png'.format(train_output_path,
                                                   train_img_file.split('/')[-1].split('\\')[-1]
                                                   .split('.')[0], i + 1)
@@ -130,9 +126,15 @@ def augment_image(train_img_file, target_img_file, train_output_path, target_out
 
 
 def augment_dir(train_root, target_root, train_output_path, target_output_path, aug_num=5,
-                hr_crop_size=96, scale=4):
+                hr_crop_size=192, scale=4):
     train_files = np.array(glob.glob(train_root + '/*'))
     target_files = np.array(glob.glob(target_root + '/*'))
+
+    if not os.path.exists(train_output_path):
+        os.makedirs(train_output_path)
+    if not os.path.exists(target_output_path):
+        os.makedirs(target_output_path)
+
     for i in range(len(train_files)):
         print('augmenting image {} ...'.format(i + 1))
         augment_image(train_files[i], target_files[i], train_output_path, target_output_path,

@@ -1,6 +1,9 @@
 from model.edsr import EDSR
 import torch
 import os
+from utils.trainer import Trainer
+import torchvision.transforms as transforms
+import cv2 as cv
 
 
 def create_model(scale):
@@ -48,3 +51,20 @@ def load_checkpoint(model, checkpoint_load_path):
         print('=> no checkpoint found at \'{}\''.format(checkpoint_load_path))
 
         return None, None, None
+
+
+def train_model(model, train_dataset, epoch, checkpoint_save_path, checkpoint=False,
+                checkpoint_load_path=None, cuda=False):
+    trainer = Trainer(train_dataset, model, cuda=cuda)
+    trainer.set_checkpoint_saving_path(checkpoint_save_path)
+    trainer.train(epoch=epoch, checkpoint_load_path=checkpoint_load_path,
+                  checkpoint=checkpoint)
+
+
+def evaluate_img(model, input_path, cuda=False):
+    input_image = transforms.ToTensor()(cv.imread(input_path))
+    if cuda:
+        input_image = input_image.cuda()
+
+    output_image = model(input_image)
+    return input_image, output_image

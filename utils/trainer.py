@@ -1,5 +1,4 @@
 import os
-
 import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader
@@ -63,13 +62,10 @@ class Trainer:
                                                                   i+1, len(train_loader),
                                                                   round(loss.item(), 1)))
 
-                if check_count % 1 == 0:
+                if check_count % 50 == 0:
                     util.save_checkpoint(model=self.model_, lr=lr, epoch=epoch_i + 1,
-                                         mark=check_count // 1, path=self.checkpoint_path_)
+                                         mark=check_count // 50, path=self.checkpoint_path_)
                 check_count += 1
-
-                if i == 1:
-                    break
 
         util.save_checkpoint(model=self.model_, lr=lr, epoch=epoch, path=self.checkpoint_path_,
                              final=True)

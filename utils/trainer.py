@@ -32,7 +32,7 @@ class Trainer:
             criterion = criterion.cuda()
 
         print('training ...')
-        for epoch_i in range(start_epoch, start_epoch+epoch+1):
+        for epoch_i in range(start_epoch, start_epoch+epoch):
             lr = util.adjust_lr(lr, epoch - 1, self.step)
             check_count = 1
 
@@ -47,7 +47,7 @@ class Trainer:
                 loss.backward()
                 optimizer.step()
 
-                print('===> Epoch[{}/{}]({}/{}): Loss: {}'.format(epoch_i + 1, start_epoch+epoch+1,
+                print('===> Epoch[{}/{}]({}/{}): Loss: {}'.format(epoch_i + 1, start_epoch+epoch,
                                                                   i+1, len(train_loader),
                                                                   round(loss.item(), 1)))
 

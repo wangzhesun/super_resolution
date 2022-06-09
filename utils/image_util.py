@@ -12,6 +12,10 @@ def tensor_to_numpy(img):
 
 def show_tensor_img(img, img_name):
     numpy_img = tensor_to_numpy(img)
+    numpy_img *= 255
+    numpy_img[numpy_img < 0] = 0
+    numpy_img[numpy_img > 255.] = 255.
+    numpy_img = numpy_img.astype(np.uint8)
     corrected_img = cv.cvtColor(numpy_img, cv.COLOR_BGR2RGB)
     plt.imshow(corrected_img)
     plt.title(img_name)

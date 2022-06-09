@@ -1,5 +1,10 @@
+from model.edsr import EDSR
 import torch
 import os
+
+
+def create_model(scale):
+    return EDSR(scale=scale)
 
 
 def adjust_lr(lr, epoch, step):

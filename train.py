@@ -1,12 +1,7 @@
-from model.edsr import EDSR
 from utils import dataset
 import torchvision.transforms as transforms
 from utils.trainer import Trainer
-
-
-def create_model(scale):
-    print('initializing model ...')
-    return EDSR(scale=scale)
+from utils import model_util as util
 
 
 def train_model(model, train_dataset, epoch, checkpoint_save_path, checkpoint=False,
@@ -25,7 +20,8 @@ if __name__ == '__main__':
                                  transform=transforms.ToTensor())
 
     # create the model
-    sr_model = create_model(scale=4)
+    print('initializing model ...')
+    sr_model = util.create_model(scale=4)
 
     # train the model
     train_model(model=sr_model, train_dataset=train_data, epoch=100,

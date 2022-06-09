@@ -41,7 +41,7 @@ def load_checkpoint(model, checkpoint_load_path):
         lr = checkpoint['lr']
         start_epoch = checkpoint['epoch']
         model.load_state_dict(state)
-        print('loading checkpoint successfully')
+        print('load checkpoint successfully')
 
         return model, start_epoch, lr
     else:

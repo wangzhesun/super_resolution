@@ -4,15 +4,15 @@ from matplotlib import pyplot as plt
 import numpy as np
 import glob
 import os
+import math
 
 
 def tensor_to_numpy(img):
-    return img.permute(1, 2, 0).numpy()
+    return 255*img.permute(1, 2, 0).numpy()
 
 
 def show_tensor_img(img, img_name):
     numpy_img = tensor_to_numpy(img)
-    numpy_img *= 255
     numpy_img[numpy_img < 0] = 0
     numpy_img[numpy_img > 255.] = 255.
     numpy_img = numpy_img.astype(np.uint8)
@@ -25,7 +25,7 @@ def show_tensor_img(img, img_name):
 def save_tensor_img(img, img_name, output_path):
     numpy_img = tensor_to_numpy(img)
     output_p = '{}/{}.jpg'.format(output_path, img_name)
-    cv.imwrite(output_p, 255 * numpy_img)
+    cv.imwrite(output_p, numpy_img)
 
 
 def random_crop(lr_img, hr_img, data_type='tensor', hr_crop_size=192, scale=4):
@@ -139,3 +139,36 @@ def augment_dir(train_root, target_root, train_output_path, target_output_path, 
         print('augmenting image {} ...'.format(i + 1))
         augment_image(train_files[i], target_files[i], train_output_path, target_output_path,
                       aug_num=aug_num, hr_crop_size=hr_crop_size, scale=scale)
+
+def get_psnr(prediction, target, pred_path=False, tar_path=False, shave_border=0, tensor=False):
+    if pred_path:
+        prediction_img = cv.imread(prediction)
+        prediction_img = prediction_img.astype(int)
+    else:
+        if tensor:
+            prediction_img = tensor_to_numpy(prediction)
+        else:
+            prediction_img = prediction.astype(int)
+
+    if tar_path:
+        target_img = cv.imread(target)
+        target_img = target_img.astype(int)
+    else:
+        if tensor:
+            target_img = tensor_to_numpy(target)
+        else:
+            target_img = target.astype(int)
+
+    height, width = prediction_img.shape[0:2]
+
+    prediction_img = prediction_img[shave_border:height - shave_border,
+                     shave_border:width - shave_border]
+    target_img = target_img[shave_border:height - shave_border,
+                 shave_border:width - shave_border]
+
+    im_dff = prediction_img - target_img
+    rmse = math.sqrt(np.mean(im_dff ** 2))
+
+    if rmse == 0:
+        return 100
+    return 20 * math.log10(255.0 / rmse)

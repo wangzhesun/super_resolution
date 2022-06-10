@@ -5,6 +5,8 @@ from utils.trainer import Trainer
 import torchvision.transforms as transforms
 import cv2 as cv
 from utils import image_util
+from utils import evaluation_util
+import numpy as np
 
 
 def create_model(scale):
@@ -73,7 +75,7 @@ def evaluate_model(model, input_path, cuda=False):
         input_image = input_image.cuda()
 
     output_image = model(input_image)
-    return input_image, output_image
+    return input_image.detach(), output_image.detach()
 
 
 def enhance(scale, image_path, weight_path, display=False, save=False, output_path=None,
@@ -90,15 +92,26 @@ def enhance(scale, image_path, weight_path, display=False, save=False, output_pa
     input_img, output_img = \
         evaluate_model(sr_model, image_path, cuda=cuda)
 
+    print('getting evaluation scores ...')
+    resize_input_img = image_util.tensor_to_numpy(input_img).astype(np.uint8)
+    resize_input_img = cv.resize(resize_input_img, dsize=(output_img.shape[2], output_img.shape[1]),
+                                 interpolation=cv.INTER_CUBIC)
+    resize_input_img = transforms.ToTensor()(resize_input_img)
+
+    psnr_score = evaluation_util.get_psnr(resize_input_img, output_img, tensor=True)
+    ssim_score = evaluation_util.get_ssim(resize_input_img, output_img, tensor=True)
+
     if display:
-        image_util.show_tensor_img(input_img.detach(), 'input image')
-        image_util.show_tensor_img(output_img.detach(), 'output image')
-        print('image displayed')
+        image_util.show_tensor_img(input_img, 'input image')
+        image_util.show_tensor_img(output_img, 'output image')
 
     if save:
+        print('saving image ...')
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        image_util.save_tensor_img(output_img.detach(),
+        image_util.save_tensor_img(output_img,
                                    '{}_sr'.format(image_path.split('/')[-1].split('.')[0]),
                                    output_path)
-        print('image saved')
+
+    print('PSNR score is: {}'.format(round(psnr_score, 2)))
+    print('SSIM score is: {}'.format(round(ssim_score, 2)))

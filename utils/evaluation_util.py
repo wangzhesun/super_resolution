@@ -1,36 +1,36 @@
 import cv2 as cv
 import numpy as np
 import math
-import image_util as util
+from utils import image_util as util
 
 
-def get_psnr(prediction, target, pred_path=False, tar_path=False, shave_border=0, tensor=False):
+def get_psnr(img1, img2, pred_path=False, tar_path=False, shave_border=0, tensor=False):
     if pred_path:
-        prediction_img = cv.imread(prediction)
-        prediction_img = prediction_img.astype(int)
+        img1 = cv.imread(img1)
+        img1 = img1.astype(int)
     else:
         if tensor:
-            prediction_img = util.tensor_to_numpy(prediction)
+            img1 = util.tensor_to_numpy(img1)
         else:
-            prediction_img = prediction.astype(int)
+            img1 = img1.astype(int)
 
     if tar_path:
-        target_img = cv.imread(target)
-        target_img = target_img.astype(int)
+        img2 = cv.imread(img2)
+        img2 = img2.astype(int)
     else:
         if tensor:
-            target_img = util.tensor_to_numpy(target)
+            img2 = util.tensor_to_numpy(img2)
         else:
-            target_img = target.astype(int)
+            img2 = img2.astype(int)
 
-    height, width = prediction_img.shape[0:2]
+    height, width = img1.shape[0:2]
 
-    prediction_img = prediction_img[shave_border:height - shave_border,
-                     shave_border:width - shave_border]
-    target_img = target_img[shave_border:height - shave_border,
-                 shave_border:width - shave_border]
+    img1 = img1[shave_border:height - shave_border,
+                shave_border:width - shave_border]
+    img2 = img2[shave_border:height - shave_border,
+                shave_border:width - shave_border]
 
-    im_dff = prediction_img - target_img
+    im_dff = img1 - img2
     rmse = math.sqrt(np.mean(im_dff ** 2))
 
     if rmse == 0:
@@ -62,10 +62,6 @@ def ssim(img1, img2):
 
 
 def get_ssim(img1, img2, pred_path=False, tar_path=False, tensor=False):
-    '''calculate SSIM
-    the same outputs as MATLAB's
-    img1, img2: [0, 255]
-    '''
     if pred_path:
         img1 = cv.imread(img1)
         img1 = img1.astype(int)

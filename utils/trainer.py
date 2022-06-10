@@ -32,8 +32,6 @@ class Trainer:
                                lr=self.lr_, weight_decay=weight_decay, betas=(0.9, 0.999),
                                eps=1e-08)
 
-        print(self.batch_update_)
-
         criterion = nn.L1Loss(reduction='sum')
         if self.cuda_:
             criterion = criterion.cuda()

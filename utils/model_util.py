@@ -23,7 +23,6 @@ def save_checkpoint(model, lr=-1, epoch=-1, batch=-1, path=None, final=False,
         state = {'epoch': epoch, 'model': model.state_dict(), 'lr': lr, 'batch': batch,
                  'cuda': cuda}
         torch.save(state, model_out_path)
-        torch.save(model.state_dict(), model_out_path)
 
         print('Final checkpoint saved to {}'.format(model_out_path))
     else:

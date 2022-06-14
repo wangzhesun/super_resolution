@@ -86,6 +86,7 @@ def enhance(scale, image_path, weight_path, display=False, save=False, output_pa
         sr_model.cuda()
 
     sr_model, _, _, _, _ = load_checkpoint(sr_model, weight_path)
+    sr_model.eval()
 
     print('enhancing image ...')
     input_img, output_img = \

@@ -5,6 +5,10 @@ import numpy as np
 
 
 class Dataset(data.Dataset):
+    """
+    the class Dataset accepts path to training low-resolution data and target high-resolution data,
+    and creates a dataloader usable dataset object
+    """
     def __init__(self, train_root, target_root='./data/DIV2K/DIV2K_train_HR', transform=None):
         super(Dataset, self).__init__()
         self.transform_ = transform

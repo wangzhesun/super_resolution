@@ -7,14 +7,28 @@ import os
 
 
 def tensor_to_numpy(img):
+    """
+    convert tensor image to numpy image (0-1 scale to 0-255 scale)
+
+    :param img: the input tensor image
+    :return: the output numpy image
+    """
     return 255 * img.permute(1, 2, 0).numpy()
 
 
 def show_tensor_img(img, img_name):
+    """
+    display the input tensor image
+
+    :param img: the input image
+    :param img_name: the image name
+    """
+    # convert the tensor image to numpy image
     numpy_img = tensor_to_numpy(img)
     numpy_img[numpy_img < 0] = 0
     numpy_img[numpy_img > 255.] = 255.
     numpy_img = numpy_img.astype(np.uint8)
+    # convert the image from BGR representation to RGB representation
     corrected_img = cv.cvtColor(numpy_img, cv.COLOR_BGR2RGB)
     plt.imshow(corrected_img)
     plt.title(img_name)
@@ -22,14 +36,30 @@ def show_tensor_img(img, img_name):
 
 
 def save_tensor_img(img, img_name, output_path):
-    numpy_img = tensor_to_numpy(img)
+    """
+    save the tensor image to the output path
+
+    :param img: the input image
+    :param img_name: the image name
+    :param output_path: the output path
+    """
+    numpy_img = tensor_to_numpy(img)  # convert the tensor image to numpy image
     output_p = '{}/{}.jpg'.format(output_path, img_name)
     cv.imwrite(output_p, numpy_img)
 
 
-def random_crop(lr_img, hr_img, data_type='tensor', hr_crop_size=192, scale=4):
-    ''' This function crops lr(48x48) and hr(192*192) images'''
-    lr_crop_size = hr_crop_size // scale
+def crop(lr_img, hr_img, data_type='tensor', hr_crop_size=192, scale=4):
+    """
+    crop the same region in low-resolution and high-resolution images
+
+    :param lr_img: the low resolution image
+    :param hr_img: the high resolution image
+    :param data_type: flag indicating whether the input images are tensor images or numpy images
+    :param hr_crop_size: the cropped size of the high resolution image, default is 192
+    :param scale: scale of the high-resolution image compared to the low-resolution image
+    :return: the cropped low-resolution and high-resolution images
+    """
+    lr_crop_size = hr_crop_size // scale  # compute the crop size of the low-resolution image
     if data_type == 'tensor':
         lr_img_shape = lr_img.shape[1:3]
     elif data_type == 'array':
@@ -37,12 +67,13 @@ def random_crop(lr_img, hr_img, data_type='tensor', hr_crop_size=192, scale=4):
     else:
         raise NotImplementedError
 
+    # determine the width and height of cropped low-resolution and high-resolution images
     lr_width = torch.randint(low=0, high=lr_img_shape[1] - lr_crop_size + 1, size=(1, 1)).item()
     lr_height = torch.randint(low=0, high=lr_img_shape[0] - lr_crop_size + 1, size=(1, 1)).item()
-
     hr_width = lr_width * scale
     hr_height = lr_height * scale
 
+    # extract the corresponding cropped parts
     if data_type == 'tensor':
         lr_img_cropped = lr_img[:, lr_height:lr_height + lr_crop_size,
                          lr_width:lr_width + lr_crop_size]
@@ -60,10 +91,17 @@ def random_crop(lr_img, hr_img, data_type='tensor', hr_crop_size=192, scale=4):
 
 
 def random_flip(lr_img, hr_img, data_type='tensor'):
-    ''' This function will flip imag left_right randomly'''
-    random = torch.rand(1).item()
+    """
+    randomly flip the images left-right
 
-    if random < 0.5:
+    :param lr_img: the low-resolution image
+    :param hr_img: the high-resolution image
+    :param data_type: flag indicating whether input images are tensor images or numpy images
+    :return: original images or flipped images
+    """
+    random = torch.rand(1).item()  # generate a random number between 0 and 1
+
+    if random < 0.5:  # only flip if the generated random is greater or equal to 0.5
         return lr_img, hr_img
     else:
         if data_type == 'tensor':
@@ -75,8 +113,17 @@ def random_flip(lr_img, hr_img, data_type='tensor'):
 
 
 def random_rotate(lr_img, hr_img, data_type='tensor'):
-    ''' This function will rotate image randomly to 90 degree'''
+    """
+    randomly rotate the images by 0, 90, 180, or 270 degrees clockwise
+
+    :param lr_img: the low-resolution image
+    :param hr_img: the high-resolution image
+    :param data_type: flag indicating whether input images are tensor images or numpy images
+    :return: original images or rotated images
+    """
+    # generate a random integer among 0, 1, 2, and 3
     random = torch.randint(low=0, high=4, size=(1, 1)).item()
+    # rotate according to the generated random number
     if data_type == 'tensor':
         return torch.rot90(lr_img, random, (1, 2)), torch.rot90(hr_img, random, (1, 2))
     elif data_type == 'array':
@@ -92,12 +139,24 @@ def random_rotate(lr_img, hr_img, data_type='tensor'):
 
 def augment_image(train_img_file, target_img_file, train_output_path, target_output_path,
                   aug_num, hr_crop_size, scale):
+    """
+    augment a single image for some times
+
+    :param train_img_file: the path to the training image
+    :param target_img_file: the path to the target image
+    :param train_output_path: the output path of the augmented training image
+    :param target_output_path: the output path of the augmented target image
+    :param aug_num: the repeat number of the augmentation process
+    :param hr_crop_size: the cropped size of the high resolution image
+    :param scale: scale of the high-resolution image compared to the low-resolution image
+    """
     train_img = cv.imread(train_img_file)
     target_img = cv.imread(target_img_file)
+    # repeat the augmentation process for aug_num times
     for i in range(aug_num):
-        count = 0
-        c_train, c_target = random_crop(train_img, target_img, data_type='array',
-                                        hr_crop_size=hr_crop_size, scale=scale)
+        count = 0  # record the number of times when no operation applied
+        c_train, c_target = crop(train_img, target_img, data_type='array',
+                                 hr_crop_size=hr_crop_size, scale=scale)
 
         random = torch.torch.rand(1).item()
         if random < 0.5:
@@ -113,6 +172,7 @@ def augment_image(train_img_file, target_img_file, train_output_path, target_out
             r_f_c_train, r_f_c_target = f_c_train, f_c_target
             count += 1
 
+        # output the augmented image only if some operation has been applied
         if count < 2:
             train_out = '{}/{}_aug_{}.png'.format(train_output_path,
                                                   train_img_file.split('/')[-1].split('\\')[-1]
@@ -126,6 +186,17 @@ def augment_image(train_img_file, target_img_file, train_output_path, target_out
 
 def augment_dir(train_root, target_root, train_output_path, target_output_path, aug_num=5,
                 hr_crop_size=192, scale=4):
+    """
+    augment the whole directory for some times
+
+    :param train_root: the path to the training dataset directory
+    :param target_root: the path to the training dataset directory
+    :param train_output_path: the output path of the augmented training dataset
+    :param target_output_path: the output path of the augmented target dataset
+    :param aug_num: the repeat number of the augmentation process
+    :param hr_crop_size: the cropped size of the high resolution image
+    :param scale: scale of the high-resolution image compared to the low-resolution image
+    """
     train_files = np.array(glob.glob(train_root + '/*'))
     target_files = np.array(glob.glob(target_root + '/*'))
 

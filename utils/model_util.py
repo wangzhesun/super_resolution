@@ -77,15 +77,26 @@ def evaluate_model(model, input_path, cuda=False):
     return input_image.detach(), output_image.detach()
 
 
-def enhance(scale, image_path, weight_path, display=False, save=False, output_path=None,
-            cuda=False):
+def enhance(scale, image_path, pre_train=False, weight_path=None, display=False, save=False,
+            output_path=None, cuda=False):
     print('initializing model ...')
     sr_model = create_model(scale=scale)
+
+    if pre_train:
+        if scale == 2:
+            sr_model, _, _, _, _ = load_checkpoint(sr_model, './weights/EDSRx2.pt')
+        elif scale == 3:
+            sr_model, _, _, _, _ = load_checkpoint(sr_model, './weights/EDSRx3.pt')
+        elif scale == 4:
+            sr_model, _, _, _, _ = load_checkpoint(sr_model, './weights/EDSRx4.pt')
+        else:
+            raise NotImplementedError
+    else:
+        sr_model, _, _, _, _ = load_checkpoint(sr_model, weight_path)
 
     if cuda:
         sr_model.cuda()
 
-    sr_model, _, _, _, _ = load_checkpoint(sr_model, weight_path)
     sr_model.eval()
 
     print('enhancing image ...')
@@ -113,7 +124,8 @@ def enhance(scale, image_path, weight_path, display=False, save=False, output_pa
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         image_util.save_tensor_img(output_img,
-                                   '{}_sr'.format(image_path.split('/')[-1].split('.')[0]),
+                                   '{}_sr_x{}'.format(image_path.split('/')[-1].split('.')[0],
+                                                      scale),
                                    output_path)
 
     print('PSNR score is: {}'.format(round(psnr_score, 2)))

@@ -69,7 +69,7 @@ def train_model(scale, train_dataset, epoch, checkpoint_save_path, checkpoint=Fa
 
 
 def evaluate_model(model, input_path, cuda=False):
-    input_image = transforms.ToTensor()(cv.imread(input_path))
+    input_image = 255 * transforms.ToTensor()(cv.imread(input_path))
     if cuda:
         input_image = input_image.cuda()
 
@@ -91,6 +91,9 @@ def enhance(scale, image_path, weight_path, display=False, save=False, output_pa
     print('enhancing image ...')
     input_img, output_img = \
         evaluate_model(sr_model, image_path, cuda=cuda)
+
+    input_img /= 255
+    output_img /= 255
 
     print('getting evaluation scores ...')
     resize_input_img = image_util.tensor_to_numpy(input_img).astype(np.uint8)

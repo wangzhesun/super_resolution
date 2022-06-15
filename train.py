@@ -6,8 +6,9 @@ from utils.model_util import train_model
 if __name__ == '__main__':
     # load dataset
     print('loading dataset ...')
-    train_data = Dataset(train_root='train_dataset_path',
-                         target_root='target_dataset_path',
+    # make sure you change the train_root to the path of the training data directory,
+    # and change the target_root to the path of the target directory
+    train_data = Dataset(train_root='train_data_path', target_root='target_data_path',
                          transform=ToTensor())
 
     # train the model

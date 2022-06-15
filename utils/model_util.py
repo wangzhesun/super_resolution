@@ -56,13 +56,13 @@ def load_checkpoint(model, checkpoint_load_path):
         return None, None, None
 
 
-def train_model(scale, train_dataset, epoch, checkpoint_save_path, checkpoint=False,
+def train_model(scale, train_dataset, epoch, lr, batch_size, checkpoint_save_path, checkpoint=False,
                 checkpoint_load_path=None, cuda=False):
     print('initializing model ...')
     sr_model = create_model(scale=scale)
     if cuda:
         sr_model.cuda()
-    trainer = Trainer(train_dataset, sr_model, cuda=cuda)
+    trainer = Trainer(train_dataset, sr_model, cuda=cuda, lr=lr, batch_size=batch_size)
     trainer.set_checkpoint_saving_path(checkpoint_save_path)
     trainer.train(epoch=epoch, checkpoint_load_path=checkpoint_load_path,
                   checkpoint=checkpoint)
@@ -100,30 +100,30 @@ def enhance(scale, image_path, pre_train=False, weight_path=None, display=False,
     sr_model.eval()
 
     print('enhancing image ...')
-    input_img, output_img = \
+    lr_img, sr_img = \
         evaluate_model(sr_model, image_path, cuda=cuda)
 
-    input_img /= 255
-    output_img /= 255
+    lr_img /= 255
+    sr_img /= 255
 
     print('getting evaluation scores ...')
-    resize_input_img = image_util.tensor_to_numpy(input_img).astype(np.uint8)
-    resize_input_img = cv.resize(resize_input_img, dsize=(output_img.shape[2], output_img.shape[1]),
+    resize_lr_img = image_util.tensor_to_numpy(lr_img).astype(np.uint8)
+    resize_lr_img = cv.resize(resize_lr_img, dsize=(sr_img.shape[2], sr_img.shape[1]),
                                  interpolation=cv.INTER_CUBIC)
-    resize_input_img = transforms.ToTensor()(resize_input_img)
+    resize_lr_img = transforms.ToTensor()(resize_lr_img)
 
-    psnr_score = evaluation_util.get_psnr(resize_input_img, output_img, tensor=True)
-    ssim_score = evaluation_util.get_ssim(resize_input_img, output_img, tensor=True)
+    psnr_score = evaluation_util.get_psnr(resize_lr_img, sr_img, tensor=True)
+    ssim_score = evaluation_util.get_ssim(resize_lr_img, sr_img, tensor=True)
 
     if display:
-        image_util.show_tensor_img(input_img, 'input image')
-        image_util.show_tensor_img(output_img, 'output image')
+        image_util.show_tensor_img(lr_img, 'low resolution image')
+        image_util.show_tensor_img(sr_img, 'super resolution image')
 
     if save:
         print('saving image ...')
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        image_util.save_tensor_img(output_img,
+        image_util.save_tensor_img(sr_img,
                                    '{}_sr_x{}'.format(image_path.split('/')[-1].split('.')[0],
                                                       scale),
                                    output_path)

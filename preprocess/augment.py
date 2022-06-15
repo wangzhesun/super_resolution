@@ -1,8 +1,8 @@
 from utils import image_util as util
 
 if __name__ == '__main__':
-    util.augment_dir(train_root='../data/DIV2K/DIV2K_train_LR_bicubic/X4',
-                     target_root='../data/DIV2K/DIV2K_train_HR',
-                     train_output_path='../data/DIV2K_aug/DIV2K_train_LR_bicubic_X4_aug',
-                     target_output_path='../data/DIV2K_aug/DIV2K_train_HR_X4_aug',
+    util.augment_dir(train_root='raw_train_dataset_path',
+                     target_root='raw_target_dataset_path',
+                     train_output_path='augmented_train_dataset_output_path',
+                     target_output_path='augmented_target_dataset_output_path',
                      aug_num=20, hr_crop_size=192, scale=4)

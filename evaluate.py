@@ -2,6 +2,5 @@ from utils.model_util import enhance
 
 
 if __name__ == '__main__':
-    enhance(scale=4, image_path='./data/DIV2K/DIV2K_test_LR_unknown/X4/0904x4.png',
-            weight_path='./checkpoints/model_epoch_3.pt', display=True, save=True,
-            output_path='./tmp', cuda=False)
+    enhance(scale=2, image_path='input_image_path/input_image_name', pre_train=True, display=True,
+            save=True, output_path='output_image_path', cuda=False)

@@ -109,7 +109,7 @@ def enhance(scale, image_path, pre_train=False, weight_path=None, display=False,
     print('getting evaluation scores ...')
     resize_lr_img = image_util.tensor_to_numpy(lr_img).astype(np.uint8)
     resize_lr_img = cv.resize(resize_lr_img, dsize=(sr_img.shape[2], sr_img.shape[1]),
-                                 interpolation=cv.INTER_CUBIC)
+                              interpolation=cv.INTER_CUBIC)
     resize_lr_img = transforms.ToTensor()(resize_lr_img)
 
     psnr_score = evaluation_util.get_psnr(resize_lr_img, sr_img, tensor=True)

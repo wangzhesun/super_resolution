@@ -19,7 +19,7 @@ class ResBlock(nn.Module):
         super(ResBlock, self).__init__()
         layers = [nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=stride,
                             padding=padding, bias=bias),
-                  nn.ReLU(True),
+                  nn.ReLU(inplace=True),
                   nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=stride,
                             padding=padding, bias=bias)]
 

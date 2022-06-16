@@ -58,8 +58,8 @@ parameters `image_path` and `weight_path` accordingly, and set `pre_train` to `F
 For a quick start,
 you can also use our pre-trained models with scales 2, 3, and 4, respectively. The pre-trained models can be downloaded
 from [here](https://drive.google.com/drive/folders/1ok75nwikHz_ODhYiofIwFJSwid9j8uxe?usp=sharing). To use
-the pre-trained model, just place three weight files in the `weights` directory and set the parameter `pre_train` to
-`True`, then you are good to go.
+the pre-trained model, just place three weight files in the `weights` directory (with a place-holder file inside) and 
+set the parameter `pre_train` to `True`, then you are good to go.
 
 An example of the `evaluate.py` usage is shown as follows:
 

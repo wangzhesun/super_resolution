@@ -7,8 +7,8 @@ for both CPU-only and GPU users. The official implementation of the algorithm ca
 
 ## Demos
 Demos of this project can be found in the directory `demos`. the `.png` images are low-resolution images,
-and images with the same name but ending with `_sr_xN.jpg`, where N is the scale number, is the super-resolution 
-image of the corresponding scale N.
+and images with the same name but ending with `_sr_xN.jpg`, where N is the scale number, are super-resolution 
+images of the corresponding scale N.
 
 ## Usage
 The EDSR system of this project comprises three stages: data preprocessing, training,

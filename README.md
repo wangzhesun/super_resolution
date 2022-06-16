@@ -18,7 +18,15 @@ You can place the dataset wherever you want.
 After getting the dataset, use the `augment.py` in the `preprocess` directory to augment the dataset.
 This script will augment the dataset into smaller but more images using random image processing operations
 (e.g., flipping, rotation). You may want to change the parameters to where the dataset is located and where
-you want the augmented dataset goes. For your convenience, the scale-4 augmented dataset 
+you want the augmented dataset goes.
+
+An example of the `augment.py` usage is shown as follows:
+
+`util.augment_dir(train_root='./data/DIV2K/DIV2k_train_LR_bicubic/X4', target_root='./data/DIV2K/DIV2k_train_HR', train_output_path='./data/DIV2K_aug/DIV2K_train_LR_bicubic_X4_aug',
+                     target_output_path='./data/DIV2K_aug/DIV2K_train_HR_X4_aug',
+                     aug_num=20, hr_crop_size=192, scale=4)`
+
+For your convenience, the scale-4 augmented dataset 
 using `DIV2K_train_HR` and `DIV2K_train_LR_bicubic/X4` is provided [here](https://drive.google.com/drive/folders/1gD_y0ZXxPIdJbnLRDgOaf7KLNbJ6hKNA?usp=sharing).
 
 
@@ -31,7 +39,9 @@ during the first epoch if it does not exist.
 
 ### Evaluation
 You can evaluate the model using the `evaluate.py` script. To use your own model, change the
-parameters `image_path` and `weight_path` accordingly, and set `pre_train` to `False`. For a quick start,
+parameters `image_path` and `weight_path` accordingly, and set `pre_train` to `False`.
+
+For a quick start,
 you can also use our pre-trained models with scales 2, 3, and 4, respectively. The pre-trained models can be downloaded
 from [here](https://drive.google.com/drive/folders/1ok75nwikHz_ODhYiofIwFJSwid9j8uxe?usp=sharing). To use
 the pre-trained model, just place three weight files in the `weights` directory and set the parameter `pre_train` to

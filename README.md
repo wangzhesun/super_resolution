@@ -66,6 +66,11 @@ from [here](https://drive.google.com/drive/folders/1ok75nwikHz_ODhYiofIwFJSwid9j
 the pre-trained model, just place three weight files in the `weights` directory (with a place-holder file inside) and 
 set the parameter `pre_train` to `True`, then you are good to go.
 
+For the evaluation part, I recommend using the CPU option (80 seconds for an image), that is with `cuda` as `False`, 
+unless you are running with a really powerful GPU. The reason is that with the model in `evel()` mode, the convolution
+layer would create many small fragments in the GPU memory. This memory fragmentation would
+make the GPU unable to process all information even though the overall free space is enough.
+
 An example of the `evaluate.py` usage is shown as follows:
 
 ```

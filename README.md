@@ -5,6 +5,11 @@ CVPR2017 workshop Paper: ["Enhanced Deep Residual Networks for Single Image Supe
 for both CPU-only and GPU users. The official implementation of the algorithm can be found
 [here](https://github.com/sanghyun-son/EDSR-PyTorch).
 
+## Demos
+Demos of this project can be found in the directory `demos`. the `.png` images are low-resolution images,
+and images with the same name but ending with `_sr_xN.jpg`, where N is the scale number, is the super-resolution 
+image of the corresponding scale N.
+
 ## Usage
 The EDSR system of this project comprises three stages: data preprocessing, training,
 and evaluation. It's totally fine to skip the first two parts and go straight to the evaluation for a
@@ -36,7 +41,7 @@ using `DIV2K_train_HR` and `DIV2K_train_LR_bicubic/X4` is provided [here](https:
 ### Training
 To train your model, use the script `train.py`. Change the parameters to where you store the dataset.
 You can also customize the training process by changing the epoch, learning rate, etc. Depending on your
-situation, you may run in CPU (set `cuda` to be `False`) or in GPU (set `cuda` to be `True`) setting. 
+situation, you may run in CPU (set `cuda` to be `False`) or GPU (set `cuda` to be `True`). 
 For each epoch, the checkpoint will be saved in the directory named `checkpoints`, which will be created
 during the first epoch if it does not exist.
 
